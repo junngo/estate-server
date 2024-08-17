@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: estate_db
+      POSTGRES_USER: estate_user
+      POSTGRES_PASSWORD: yourpassword
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - estate_network
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      - DEBUG=1
+      - DJANGO_DB_NAME=estate
+      - DJANGO_DB_USER=estate_user
+      - DJANGO_DB_PASSWORD=yourpassword
+      - DJANGO_DB_HOST=db
+    networks:
+      - estate_network
+
+networks:
+  estate_network:
+      external: true
+
+volumes:
+  postgres_data:
